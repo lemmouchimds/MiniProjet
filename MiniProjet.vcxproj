@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\My own TPs\ListQueueStack\FilePile.cpp" />
     <ClCompile Include="mainFunctions.cpp" />
     <ClCompile Include="MiniProjet.cpp" />
   </ItemGroup>
