@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <time.h>
+#include "mainFunctions.h"
 
 #pragma region Definition
 
@@ -35,7 +36,8 @@ struct objet
 #pragma region File
 
 //déclaration de la File
-typedef parcelle Telm;
+//typedef parcelle Telm;
+typedef objet Telm;
 typedef struct Element* EFile;
 typedef struct Element { Telm  Val; EFile Suiv; } CelluleF;
 typedef struct { EFile Tete, Queue; } File;
@@ -91,7 +93,20 @@ struct themeParcelle
 	int nature;
 };
 
+struct theme {
+	File* objets;
+	int nature;
+};
+
 typedef parcelle** carte;
+
+BOOL parcelleEqual(parcelle p1, parcelle p2)
+{
+	return p1.nature == p2.nature &&
+		p1.x == p2.x &&
+		p1.y == p2.y;
+
+}
 
 void creationCarte(carte c, int n, int m)
 {
@@ -193,7 +208,26 @@ objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 	return result;
 }
 
+BOOL existInObjet(objet* o, parcelle p)
+{
+	objet* temp = o;
 
+	while (temp)
+	{
+		if (temp->val.nature == p.nature &&
+			temp->val.x == p.x &&
+			temp->val.y == p.y
+			)
+		{
+			return TRUE;
+		}
+
+		temp = temp->suiv;
+
+	}
+
+	return FALSE;
+}
 
 carte creationCarteObjet(objet* o, int n, int m)
 {
@@ -233,7 +267,64 @@ void afficheObjet(objet o, int n, int m)
 	afficheCarte(c, n, m);
 }
 
-carte creationCarteTheme(themeParcelle a, int n , int m)
+BOOL existInTheme(theme* t, parcelle p)
+{
+	BOOL result = FALSE;
+
+	File* f;
+	Initfile(f);
+
+	objet* temp = NULL;
+	objet* temp2 = NULL;
+
+	while (!Filevide(*(t->objets)))
+	{
+		Defiler(t->objets, temp);
+		temp2 = temp;
+
+		while (temp2 && !result)
+		{
+			if (parcelleEqual(temp2->val, p))
+			{
+				result = TRUE;
+			}
+		}
+
+		Enfiler(f, *temp);
+	}
+
+	while (!Filevide(*f))
+	{
+		Defiler(f, temp);
+		Enfiler(t->objets, *temp);
+	}
+
+	return result;
+}
+
+void extraireTheme(carte c, theme* t, int n, int m, int nature)
+{
+
+	Initfile(t->objets);
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			if (c[i][j].nature == nature)
+			{
+				if (!existInTheme(t, c[i][j]))
+				{
+					objet* temp = extraireObjet(c, c[i][j], n, m, nature);
+					Enfiler(t->objets, *temp);
+				}
+
+			}
+		}
+	}
+}
+
+carte creationCarteTheme(theme t, int n , int m)
 {
 	parcelle** c = (parcelle**)malloc(sizeof(parcelle*) * m);
 
@@ -253,12 +344,21 @@ carte creationCarteTheme(themeParcelle a, int n , int m)
 		}
 	}
 
-	File* f = &(a.f);
+	File* f = t.objets;
 	while (!Filevide(*f))
 	{
-		parcelle* x = (parcelle*)malloc(sizeof(parcelle));
-		Defiler(f, x);
-		c[x->x][x->y].nature = x->nature;
+		objet* temp;
+		Defiler(f, temp);
+
+		while (temp)
+		{
+			parcelle x = temp->val;
+			c[x.x][x.y].nature = x.nature;
+
+			temp = temp->suiv;
+
+		}
+
 	}
 
 	return c;
