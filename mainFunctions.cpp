@@ -306,6 +306,7 @@ void extraireTheme(carte c, theme* t, int n, int m, int nature)
 {
 
 	Initfile(t->objets);
+	t->nature = nature;
 
 	for (int i = 0; i < n; i++)
 	{
@@ -364,28 +365,95 @@ carte creationCarteTheme(theme t, int n , int m)
 	return c;
 }
 
-void afficheTheme(themeParcelle t, int n, int m)
+void afficheTheme(theme t, int n, int m)
 {
 	carte c = creationCarteTheme(t, n, m);
 	afficheCarte(c, n, m);
 }
 
-void extraireTheme(carte c, themeParcelle* t, int n, int m, int nature)
-{
-	Initfile(&(t->f));
+//void extraireTheme(carte c, themeParcelle* t, int n, int m, int nature)
+//{
+//	Initfile(&(t->f));
+//
+//	for (int i = 0; i < m; i++)
+//	{
+//		for (int j = 0; j < n; j++)
+//		{
+//			if (c[i][j].nature == nature)
+//			{
+//				Enfiler(&(t->f), c[i][j]);
+//			}
+//		}
+//	}
+//
+//}
 
-	for (int i = 0; i < m; i++)
+int countParcelles(carte c, int n, int m, int nature)
+{
+	int result = 0;
+
+	for (int i = 0; i < n; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m; j++)
 		{
 			if (c[i][j].nature == nature)
 			{
-				Enfiler(&(t->f), c[i][j]);
+				result++;
 			}
 		}
 	}
 
+	return result;
 }
+
+void afficheStat(theme t, int count, int n, int m)
+{
+	afficheTheme(t, n, m);
+	printf("Il y'a %d de parcelle de type ", count);
+	switch (t.nature)
+	{
+
+	case 1:
+		printf("Agricole");
+		break;
+	case 2:
+		printf("Habitation");
+		break;
+	case 3:
+		printf("Forets");
+		break;
+	case 4:
+		printf("Industialle");
+
+	default:
+		break;
+	}
+
+
+	int surface = n * m;
+	int pourcentage = count / surface;
+
+	printf("/nCe qui fait %d % de la surface total.", pourcentage);
+}
+
+void stat(carte c, int n, int m)
+{
+	theme t[MAX_TYPES];
+
+	for (int i = 1; i <= MAX_TYPES; i++)
+	{
+		extraireTheme(c, &t[i - 1], n, m, i);
+
+	}
+
+	for (int i = 1; i < MAX_TYPES; i++)
+	{
+		int count = countParcelles(c, n, m, t[i].nature);
+		afficheStat(t[i], count, n, m);
+	}
+
+}
+
 
 int main()
 {	
