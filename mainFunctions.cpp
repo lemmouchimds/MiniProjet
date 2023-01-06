@@ -108,6 +108,8 @@ BOOL parcelleEqual(parcelle p1, parcelle p2)
 
 }
 
+#pragma region Carte
+
 void creationCarte(carte c, int n, int m)
 {
 	BOOL doubleY = FALSE;
@@ -176,6 +178,10 @@ void afficheCarte(carte c, int n, int m)
 
 	SetConsoleTextAttribute(hConsole, 15);
 }
+
+#pragma endregion
+
+#pragma region Objet
 
 objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 {
@@ -274,6 +280,10 @@ void afficheObjet(objet o, int n, int m)
 	carte c = creationCarteObjet(&o, n, m);
 	afficheCarte(c, n, m);
 }
+
+#pragma endregion
+
+#pragma region Theme
 
 BOOL existInTheme(theme* t, parcelle p)
 {
@@ -376,43 +386,12 @@ carte creationCarteTheme(theme t, int n, int m)
 void afficheTheme(theme t, int n, int m)
 {
 	carte c = creationCarteTheme(t, n, m);
-	/*switch (t.nature)
-	{
-	case 1:
-		system("Color 01");
-		break;
-	case 2:
-		system("Color 02");
-		break;
-	case 3:
-		system("Color 04");
-		break;
-	case 4:
-		system("Color 05");
-		break;
-	default:
-		system("Color 00");
-		break;
-	}*/
 	afficheCarte(c, n, m);
 }
 
-//void extraireTheme(carte c, themeParcelle* t, int n, int m, int nature)
-//{
-//	Initfile(&(t->f));
-//
-//	for (int i = 0; i < m; i++)
-//	{
-//		for (int j = 0; j < n; j++)
-//		{
-//			if (c[i][j].nature == nature)
-//			{
-//				Enfiler(&(t->f), c[i][j]);
-//			}
-//		}
-//	}
-//
-//}
+#pragma endregion
+
+#pragma region Stat
 
 int countParcelles(carte c, int n, int m, int nature)
 {
@@ -435,10 +414,6 @@ int countParcelles(carte c, int n, int m, int nature)
 void afficheStat(theme t, int count, int n, int m)
 {
 	afficheTheme(t, n, m);
-
-	/*HANDLE  hConsole;
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, 15);*/
 
 	printf("Il y'a %d de parcelle de type ", count);
 	switch (t.nature)
@@ -487,12 +462,13 @@ void stat(carte c, int n, int m)
 
 }
 
+#pragma endregion
 
 int main()
 {
 	srand(time(0));
-	int n = 11;
-	int m = 11;
+	int n = 15;
+	int m = 15;
 
 	parcelle** c = (parcelle**)malloc(sizeof(parcelle*) * m);
 
@@ -502,16 +478,10 @@ int main()
 
 	}
 
-	//creationTEST(c1, n, m);
 	creationCarte(c, n, m);
 	afficheCarte(c, n, m);
 
 	printf("\n");
-
-	/*themeParcelle* t1 = (themeParcelle*)malloc(sizeof(themeParcelle));
-	extraireTheme(c, t1, n, m, 2);
-	afficheTheme(*t1, n, m);*/
-
 
 	//printf("give me x and y :");
 	int x = 0, y = 0;
@@ -537,6 +507,7 @@ int main()
 
 	stat(c, n, m);
 
+	int abc = 0;
 	return 0;
 
 
