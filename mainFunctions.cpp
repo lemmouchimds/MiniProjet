@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <time.h>
+#include<Windows.h>
 
 #pragma region Definition
 
@@ -155,16 +156,25 @@ void creationCarte(carte c, int n, int m)
 
 void afficheCarte(carte c, int n, int m)
 {
+	HANDLE  hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
 		{
+			SetConsoleTextAttribute(hConsole, c[i][j].nature);
+
+
 			printf("%d ", c[i][j].nature);
 		}
+
 
 		printf("\n");
 
 	}
+
+	SetConsoleTextAttribute(hConsole, 15);
 }
 
 objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
@@ -366,6 +376,24 @@ carte creationCarteTheme(theme t, int n, int m)
 void afficheTheme(theme t, int n, int m)
 {
 	carte c = creationCarteTheme(t, n, m);
+	/*switch (t.nature)
+	{
+	case 1:
+		system("Color 01");
+		break;
+	case 2:
+		system("Color 02");
+		break;
+	case 3:
+		system("Color 04");
+		break;
+	case 4:
+		system("Color 05");
+		break;
+	default:
+		system("Color 00");
+		break;
+	}*/
 	afficheCarte(c, n, m);
 }
 
@@ -407,6 +435,11 @@ int countParcelles(carte c, int n, int m, int nature)
 void afficheStat(theme t, int count, int n, int m)
 {
 	afficheTheme(t, n, m);
+
+	/*HANDLE  hConsole;
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, 15);*/
+
 	printf("Il y'a %d de parcelle de type ", count);
 	switch (t.nature)
 	{
@@ -428,10 +461,11 @@ void afficheStat(theme t, int count, int n, int m)
 	}
 
 
-	int surface = n * m;
-	int pourcentage = count / surface;
+	float surface = n * m;
+	
+	float pourcentage = ((count / surface) * 100);
 
-	printf("/nCe qui fait %d % de la surface total.", pourcentage);
+	printf("\nCe qui fait %.2f %% de la surface total.\n", pourcentage);
 }
 
 void stat(carte c, int n, int m)
@@ -446,8 +480,9 @@ void stat(carte c, int n, int m)
 
 	for (int i = 1; i <= MAX_TYPES; i++)
 	{
-		int count = countParcelles(c, n, m, t[i].nature);
+		int count = countParcelles(c, n, m, t[i - 1].nature);
 		afficheStat(t[i - 1], count, n, m);
+		printf("\n");
 	}
 
 }
