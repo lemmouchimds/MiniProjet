@@ -11,7 +11,7 @@ typedef int BOOL;
 #define AGRICOLE 1
 #define HABITATION 2
 #define FORETS 3
-#define INDUSTRIELLE 4
+#define INDUSTRIELLE 4e
 
 #define MAX_TYPES 4
 
@@ -176,36 +176,7 @@ objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 
 	objet* result = (objet*)malloc(sizeof(objet));
 	result->val = p;
-
-	//if (p.x - 1 > 0)
-	//{
-	//	parcelle pGauche;
-	//	pGauche.nature = c[p.x + 1][p.y].nature;
-	//	pGauche.x = p.x - 1;
-	//	pGauche.y = p.y;
-
-	//	objet* suivant = extraireObjet(c, pGauche, n, m, nature);
-	//	if (suivant)
-	//	{
-	//		suivant->suiv = NULL;
-	//		result->suiv = suivant;
-	//	}
-	//}
-
-	//if (p.y - 1 > 0)
-	//{
-	//	parcelle pHaut;
-	//	pHaut.nature = c[p.x][p.y - 1].nature;
-	//	pHaut.x = p.x - 1;
-	//	pHaut.y = p.y;
-
-	//	objet* suivant = extraireObjet(c, pHaut, n, m, nature);
-	//	if (suivant)
-	//	{
-	//		suivant->suiv = NULL;
-	//		result->suiv = suivant;
-	//	}
-	//}
+	result->suiv = NULL;
 
 	if (p.x + 1 < n)
 	{
@@ -213,28 +184,23 @@ objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 		pDroit.nature = c[p.x + 1][p.y].nature;
 		pDroit.x = p.x + 1;
 		pDroit.y = p.y;
-		objet* suivant = extraireObjet(c, pDroit, n, m, nature);
-		if (suivant)
-		{
-			suivant->suiv = result->suiv;
-			result = suivant;
-		}
+		result->suiv = extraireObjet(c, pDroit, n, m, nature);
 
 	}
-
+	objet* temp = result;
+	while (temp->suiv)
+	{
+		temp = temp->suiv;
+	}
 	if (p.y + 1 < m)
 	{
 		parcelle pBas;
 		pBas.nature = c[p.x][p.y + 1].nature;
 		pBas.x = p.x;
 		pBas.y = p.y + 1;
-		objet* suivant = extraireObjet(c, pBas, n, m, nature);
-		if (suivant)
-		{
-			suivant->suiv = result->suiv;
-			result = suivant;
-		}
+		temp->suiv = extraireObjet(c, pBas, n, m, nature);
 	}
+	
 
 	return result;
 }
@@ -283,7 +249,7 @@ carte creationCarteObjet(objet* o, int n, int m)
 
 	objet* temp = o;
 
-	while (temp->suiv)
+	while (temp)
 	{
 		c[temp->val.x][temp->val.y].nature = temp->val.nature;
 		temp = temp->suiv;
@@ -306,11 +272,14 @@ BOOL existInTheme(theme* t, parcelle p)
 	objet* temp = (objet*)malloc(sizeof(objet));
 	objet* temp2 = (objet*)malloc(sizeof(objet));
 
-	File tempFile = *(t->objets);
+	File* tempFile = t->objets;
+	File* f = (File*)malloc(sizeof(File));
+	Initfile(f);
 
-	while (!Filevide(tempFile))
+	while (!Filevide(*tempFile))
 	{
-		Defiler(&tempFile, temp);
+		Defiler(tempFile, temp);
+		Enfiler(f, *temp);
 		temp2 = temp;
 
 		while (temp2 && !result)
@@ -320,8 +289,12 @@ BOOL existInTheme(theme* t, parcelle p)
 				result = TRUE;
 			}
 			temp2 = temp2->suiv;
+
 		}
+
 	}
+
+	t->objets = f;
 
 	return result;
 }
@@ -471,10 +444,10 @@ void stat(carte c, int n, int m)
 
 	}
 
-	for (int i = 1; i < MAX_TYPES; i++)
+	for (int i = 1; i <= MAX_TYPES; i++)
 	{
 		int count = countParcelles(c, n, m, t[i].nature);
-		afficheStat(t[i], count, n, m);
+		afficheStat(t[i - 1], count, n, m);
 	}
 
 }
@@ -505,10 +478,10 @@ int main()
 	afficheTheme(*t1, n, m);*/
 
 
-	printf("give me x and y :");
+	//printf("give me x and y :");
 	int x = 0, y = 0;
-	scanf_s("%d", &x);
-	scanf_s("%d", &y);
+	/*scanf_s("%d", &x);
+	scanf_s("%d", &y);*/
 
 
 
@@ -518,14 +491,16 @@ int main()
 
 	p.nature = c[x][y].nature;
 
-	objet* o = (objet*)malloc(sizeof(objet));
+	/*objet* o = (objet*)malloc(sizeof(objet));
 	o = extraireObjet(c, p, n, m, p.nature);
-	afficheObjet(*o, n, m);
+	afficheObjet(*o, n, m);*/
 
 	/*theme* t = (theme*)malloc(sizeof(theme));
 	extraireTheme(c, t, n, m, p.nature);
 	afficheTheme(*t, n, m);*/
 
+
+	stat(c, n, m);
 
 	return 0;
 
