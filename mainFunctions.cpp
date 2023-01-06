@@ -1,7 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <time.h>
-#include "mainFunctions.h"
 
 #pragma region Definition
 
@@ -25,7 +24,7 @@ struct pixel
 
 typedef pixel parcelle;
 
-struct objet 
+struct objet
 {
 	parcelle val;
 	objet* suiv;
@@ -46,7 +45,7 @@ typedef struct { EFile Tete, Queue; } File;
 //procedure Initfile
 void Initfile(File* F)
 {
-	(*F).Tete = NULL; (*F).Queue = NULL;
+	F->Tete = NULL; F->Queue = NULL;
 }
 
 //procedure Enfiler
@@ -122,7 +121,7 @@ void creationCarte(carte c, int n, int m)
 			{
 				if (!doubleX)
 				{
-					
+
 					int random = (rand() % 4) + 1;
 					c[i][j].nature = random;
 					doubleX = TRUE;
@@ -133,8 +132,8 @@ void creationCarte(carte c, int n, int m)
 
 					doubleX = FALSE;
 				}
-					c[i][j].x = i;
-					c[i][j].y = j;
+				c[i][j].x = i;
+				c[i][j].y = j;
 			}
 
 			doubleY = TRUE;
@@ -177,23 +176,50 @@ objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 
 	objet* result = (objet*)malloc(sizeof(objet));
 	result->val = p;
-	
+
+	//if (p.x - 1 > 0)
+	//{
+	//	parcelle pGauche;
+	//	pGauche.nature = c[p.x + 1][p.y].nature;
+	//	pGauche.x = p.x - 1;
+	//	pGauche.y = p.y;
+
+	//	objet* suivant = extraireObjet(c, pGauche, n, m, nature);
+	//	if (suivant)
+	//	{
+	//		suivant->suiv = NULL;
+	//		result->suiv = suivant;
+	//	}
+	//}
+
+	//if (p.y - 1 > 0)
+	//{
+	//	parcelle pHaut;
+	//	pHaut.nature = c[p.x][p.y - 1].nature;
+	//	pHaut.x = p.x - 1;
+	//	pHaut.y = p.y;
+
+	//	objet* suivant = extraireObjet(c, pHaut, n, m, nature);
+	//	if (suivant)
+	//	{
+	//		suivant->suiv = NULL;
+	//		result->suiv = suivant;
+	//	}
+	//}
+
 	if (p.x + 1 < n)
 	{
 		parcelle pDroit;
 		pDroit.nature = c[p.x + 1][p.y].nature;
 		pDroit.x = p.x + 1;
 		pDroit.y = p.y;
-		result->suiv = extraireObjet(c, pDroit, n, m, nature);
-		
-	}
+		objet* suivant = extraireObjet(c, pDroit, n, m, nature);
+		if (suivant)
+		{
+			suivant->suiv = result->suiv;
+			result = suivant;
+		}
 
-	objet* temp = result;
-
-
-	while (temp->suiv)
-	{
-		temp = temp->suiv;
 	}
 
 	if (p.y + 1 < m)
@@ -202,7 +228,12 @@ objet* extraireObjet(parcelle** c, parcelle p, int n, int m, int nature)
 		pBas.nature = c[p.x][p.y + 1].nature;
 		pBas.x = p.x;
 		pBas.y = p.y + 1;
-		temp->suiv = extraireObjet(c, pBas, n, m, nature);
+		objet* suivant = extraireObjet(c, pBas, n, m, nature);
+		if (suivant)
+		{
+			suivant->suiv = result->suiv;
+			result = suivant;
+		}
 	}
 
 	return result;
@@ -263,6 +294,7 @@ carte creationCarteObjet(objet* o, int n, int m)
 
 void afficheObjet(objet o, int n, int m)
 {
+
 	carte c = creationCarteObjet(&o, n, m);
 	afficheCarte(c, n, m);
 }
@@ -271,15 +303,14 @@ BOOL existInTheme(theme* t, parcelle p)
 {
 	BOOL result = FALSE;
 
-	File* f;
-	Initfile(f);
+	objet* temp = (objet*)malloc(sizeof(objet));
+	objet* temp2 = (objet*)malloc(sizeof(objet));
 
-	objet* temp = NULL;
-	objet* temp2 = NULL;
+	File tempFile = *(t->objets);
 
-	while (!Filevide(*(t->objets)))
+	while (!Filevide(tempFile))
 	{
-		Defiler(t->objets, temp);
+		Defiler(&tempFile, temp);
 		temp2 = temp;
 
 		while (temp2 && !result)
@@ -288,15 +319,8 @@ BOOL existInTheme(theme* t, parcelle p)
 			{
 				result = TRUE;
 			}
+			temp2 = temp2->suiv;
 		}
-
-		Enfiler(f, *temp);
-	}
-
-	while (!Filevide(*f))
-	{
-		Defiler(f, temp);
-		Enfiler(t->objets, *temp);
 	}
 
 	return result;
@@ -304,8 +328,8 @@ BOOL existInTheme(theme* t, parcelle p)
 
 void extraireTheme(carte c, theme* t, int n, int m, int nature)
 {
-
-	Initfile(t->objets);
+	t->objets = (File*)malloc(sizeof(File));
+	t->objets->Tete = NULL; t->objets->Queue = NULL; //initfile(f);
 	t->nature = nature;
 
 	for (int i = 0; i < n; i++)
@@ -323,9 +347,10 @@ void extraireTheme(carte c, theme* t, int n, int m, int nature)
 			}
 		}
 	}
+
 }
 
-carte creationCarteTheme(theme t, int n , int m)
+carte creationCarteTheme(theme t, int n, int m)
 {
 	parcelle** c = (parcelle**)malloc(sizeof(parcelle*) * m);
 
@@ -348,7 +373,7 @@ carte creationCarteTheme(theme t, int n , int m)
 	File* f = t.objets;
 	while (!Filevide(*f))
 	{
-		objet* temp;
+		objet* temp = (objet*)malloc(sizeof(objet));
 		Defiler(f, temp);
 
 		while (temp)
@@ -456,13 +481,13 @@ void stat(carte c, int n, int m)
 
 
 int main()
-{	
+{
 	srand(time(0));
 	int n = 11;
 	int m = 11;
 
 	parcelle** c = (parcelle**)malloc(sizeof(parcelle*) * m);
-	
+
 	for (int i = 0; i < m; i++)
 	{
 		c[i] = (parcelle*)malloc(sizeof(parcelle) * n);
@@ -479,14 +504,27 @@ int main()
 	extraireTheme(c, t1, n, m, 2);
 	afficheTheme(*t1, n, m);*/
 
+
+	printf("give me x and y :");
+	int x = 0, y = 0;
+	scanf_s("%d", &x);
+	scanf_s("%d", &y);
+
+
+
 	parcelle p;
-	p.nature = 1;
-	p.x = 0;
-	p.y = 0;
+	p.x = x;
+	p.y = y;
+
+	p.nature = c[x][y].nature;
 
 	objet* o = (objet*)malloc(sizeof(objet));
-	o = extraireObjet(c, p, n, m, 1);
+	o = extraireObjet(c, p, n, m, p.nature);
 	afficheObjet(*o, n, m);
+
+	/*theme* t = (theme*)malloc(sizeof(theme));
+	extraireTheme(c, t, n, m, p.nature);
+	afficheTheme(*t, n, m);*/
 
 
 	return 0;
