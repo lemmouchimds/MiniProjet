@@ -88,12 +88,6 @@ Telm Tetefile(File F)
 
 #pragma endregion
 
-struct themeParcelle
-{
-	File f;
-	int nature;
-};
-
 struct theme {
 	File* objets;
 	int nature;
@@ -448,6 +442,7 @@ void afficheStat(theme t, int count, int n, int m)
 	float pourcentage = ((count / surface) * 100);
 
 	printf("\nCe qui fait %.2f %% de la surface total.\n", pourcentage);
+
 }
 
 void stat(carte c, int n, int m)
@@ -468,6 +463,25 @@ void stat(carte c, int n, int m)
 		int count = countParcelles(c, n, m, t[i - 1].nature);
 		afficheStat(t[i - 1], count, n, m);
 		printf("\n");
+	}
+
+	printf("\n---Graphic---\n");
+	double surface = n * m;
+	for (int i = 1; i <= MAX_TYPES; i++)
+	{
+		int count = countParcelles(c, n, m, t[i - 1].nature);
+		double pourcentage = ((count / surface) * 100);		
+		const int Progress = 219;
+		for (int i = 1; i <= pourcentage; i++)
+		{
+			printf("%c", Progress);
+			Sleep(40);
+		}
+
+		printf("\t");
+		printNature(i);
+		printf(": %.2f%%\n\n", pourcentage);
+
 	}
 
 }
