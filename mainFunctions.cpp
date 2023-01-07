@@ -445,6 +445,28 @@ void afficheStat(theme t, int count, int n, int m)
 
 }
 
+void affichProgressBar(int nature, float pourcentage)
+{
+	const int Progress = 219;
+	const int vide = 177;
+	for (int i = 0; i <= (pourcentage / 2); i++)
+	{
+		printf("%c", Progress);
+		Sleep(40);
+	}
+
+	for (int i = 0; i < ((100 - pourcentage) / 2); i++)
+	{
+		printf("%c", vide);
+	}
+
+	printf("\t");
+	printNature(nature);
+	printf(": %.2f%%\n\n", pourcentage);
+
+
+}
+
 void stat(carte c, int n, int m)
 {
 
@@ -471,17 +493,7 @@ void stat(carte c, int n, int m)
 	{
 		int count = countParcelles(c, n, m, t[i - 1].nature);
 		double pourcentage = ((count / surface) * 100);		
-		const int Progress = 219;
-		for (int i = 1; i <= pourcentage; i++)
-		{
-			printf("%c", Progress);
-			Sleep(40);
-		}
-
-		printf("\t");
-		printNature(i);
-		printf(": %.2f%%\n\n", pourcentage);
-
+		affichProgressBar(t[i - 1].nature, pourcentage);
 	}
 
 }
