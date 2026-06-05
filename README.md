@@ -1,6 +1,6 @@
 # MiniProjet
 
-MiniProjet is a C++ console application that generates and analyzes a parcel map. Each parcel belongs to one of four land-use types, and the program lets the user display the map, extract connected objects, extract full themes, and calculate statistics.
+MiniProjet university project (2nd year) for algorithms, it is a C++ console application that generates and analyzes a parcel map. Each parcel belongs to one of four land-use types, and the program lets the user display the map, extract connected objects, extract full themes, and calculate statistics.
 
 The application is written in C++ and built with Visual Studio.
 
